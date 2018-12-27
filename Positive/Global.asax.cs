@@ -44,9 +44,9 @@ namespace Positive
 
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 
-            //SampleArch.Model.Migrations.Configuration conf = new SampleArch.Model.Migrations.Configuration();
+            SampleArch.Model.Migrations.Configuration conf = new SampleArch.Model.Migrations.Configuration();
 
-            //conf.LeSeed(new SampleArch.Model.SampleArchContext());
+            conf.LeSeed(new SampleArch.Model.SampleArchContext());
         }
 
 
