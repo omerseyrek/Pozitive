@@ -1,0 +1,226 @@
+﻿@model SampleArch.Model.ViewModels.StockViewModel
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_editLayout.cshtml";
+}
+
+@using (Html.BeginForm("Edit", "Stock", FormMethod.Post, new
+                                        {
+                                            id = "editStock",
+                                            enctype = "multipart/form-data"
+                                        })) 
+{
+    @Html.AntiForgeryToken()
+
+    <div style="float:left; width:30%">
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.Label(@Positive.Model.Languages.Stock.SmartCode, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Label("", Model.SmartCode, htmlAttributes: new { @class = "control-label col-md-2 hasanMal" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SmartCode, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                
+                @(Html.Kendo().AutoComplete()
+                      .Name("SmartCodeComplete")
+                      .DataTextField("CompleteKey")
+                      .Filter("contains")
+                      .MinLength(3)
+                      .HtmlAttributes(new { style = "width:250px" })
+                      .Placeholder(@Model.SmartCode)
+                      .DataSource(source =>
+                      {
+                          source.Read(read =>
+                          {
+                              read.Action("ListForSearch", "Category")
+                                  .Data("onAdditionalData");
+                          })
+                          .ServerFiltering(false);
+                      })
+                      .Events(e =>
+                      {
+                        e.Select("onAutoSelect");
+                      })
+                      
+                )
+                @Html.HiddenFor(model => model.CatgoryCode, htmlAttributes: new { id = "CatgoryCode" })
+                @Html.HiddenFor(model => model.CategoryId, htmlAttributes: new { id = "CatgoryId" })
+                @Html.ValidationMessageFor(model => model.SmartCode, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CodeIndex, @Positive.Model.Languages.Stock.CodeIndex, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.CodeIndex, new { htmlAttributes = new { @class = "form-control k-textbox hasanMal" } })
+                @Html.ValidationMessageFor(model => model.CodeIndex, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.StockName, @Positive.Model.Languages.Stock.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.StockName, new { htmlAttributes = new { @class = "form-control   k-textbox" } })
+                @Html.ValidationMessageFor(model => model.StockName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+             @Html.LabelFor(model => model.SupplierName, @Positive.Model.Languages.Stock.SupplierName, htmlAttributes: new { @class = "control-label" })
+            <div class="col-md-10">
+                    @(Html.Kendo().DropDownListFor(m => m.SupplierId).OptionLabel(@Positive.Model.Languages.Common.SelectFirm).DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ListForCombo", "Company");
+                        });
+                    })
+                    .DataTextField("FirmName")
+                    .DataValueField("Id"))
+
+
+                    @Html.ValidationMessageFor(model => model.SupplierId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SupplierProductCode,  @Positive.Model.Languages.Stock.SupplierProductCode, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.SupplierProductCode, new { htmlAttributes = new { @class = "form-control   k-textbox" } })
+                @Html.ValidationMessageFor(model => model.SupplierProductCode, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.UnitName,  @Positive.Model.Languages.Stock.UnitName,  htmlAttributes: new { @class = "control-label" })
+            <div class="col-md-10">
+                    @(Html.Kendo().DropDownListFor(m => m.StockUnitId).OptionLabel(" Seçiniz...").DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ListForCombo", "UnitDefinitions");
+                        });
+                    })
+                   .DataTextField("Description")
+                    .DataValueField("Id"))
+
+                    @Html.ValidationMessageFor(model => model.StockUnitId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Definition, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Definition, new { htmlAttributes = new { @class = "form-control   k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Definition, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+    </div>
+    </div>
+    <div style="float:left; width:30%; border:solid" hidden="hidden">
+        <div class="demo-section k-content">
+            @Positive.Model.Languages.Stock.SmallImage
+            <input type="file" name="SmallImage" id="SmallImage" />   
+        </div>
+    </div>
+    <div style="float:left; width:30%; border:solid" hidden="hidden">
+        <div class="demo-section k-content">
+            @Positive.Model.Languages.Stock.LargeImage
+            <input type="file" name="LargeImage" id="LargeImage" />
+        </div>
+    </div>
+
+    <div style="float:left; width:30%; border:solid">
+        @if (Model.SmallImageBinary != null)
+        {
+            string imageBase64Data = Convert.ToBase64String(Model.SmallImageBinary);
+
+            string imageDataURL = string.Format("data:image/jpg;base64{0}", imageBase64Data);
+
+            <img src="@imageDataURL" class="smallImage32"  />
+        }
+    </div>
+
+    <div style="float:left; width:30%; border:solid">
+        @if (Model.LargeImageBinary != null)
+        {
+            string imageBase64DataLarge = Convert.ToBase64String(Model.LargeImageBinary);
+
+            string imageDataURLLarge = string.Format("data:image/jpg;base64{0}", imageBase64DataLarge);
+
+            <img src="@imageDataURLLarge" class="largeImage256"/>
+        }
+    </div>
+}
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+
+            editFormParam.saveUrl = window.location.origin + '/Stock/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/Stock/Delete/';
+            editFormParam.titleField = 'SmartCode'
+        }
+
+
+        function onAdditionalData() {
+            return {
+                text: $("#SmartCodeComplete").val()
+            };
+        }
+
+        function onAutoSelect(e) {
+            var dataItem = this.dataItem(e.item[0]);
+
+            $("#CatgoryCode").val(dataItem.CompleteKey);
+            $("#CategoryId").val(dataItem.Id);
+            onCategoryIndexFieldChange(null);
+        }
+
+        $(document).ready(function () {
+
+            $("#SmallImage").kendoUpload({ multiple: false, select: onUploadSmallSelect });
+            $("#LargeImage").kendoUpload();
+
+            $("#CodeIndex").change(function (){
+                onCategoryIndexFieldChange(null);
+            });
+
+            onCategoryIndexFieldChange(null);
+
+            pageIsReady();
+        });
+
+
+        function onUploadSmallSelect(e) {
+
+            var paramsEmailDocs = JSON.stringify(e.files);
+            //$(".smallImage32").attr("src", e.files[0]);
+        }
+
+        function onCategoryIndexFieldChange(e) {
+ 
+            var completeValue = $("#CatgoryCode").val() + '.' + $("#CodeIndex").val();
+            $(".hasanMal").html(completeValue);
+
+        }
+
+    </script>
+}

@@ -1,0 +1,113 @@
+﻿@{
+    Layout = "~/Views/Shared/_treeLayout.cshtml";
+    ViewBag.Title = "Tree";
+}
+<span id="centeredNotification" style="display:none;  min-height : 50px; min-width : 200px;  "></span>
+@(
+
+ Html.Kendo().TabStrip()
+     .Name("SubTabStrip")
+     .HtmlAttributes(new { style = "height:%100 !important" })
+     .Animation(animation =>
+     {
+         animation.Enable(true);
+
+         animation.Open(config =>
+         {
+             config.Fade(FadeDirection.In);
+             config.Duration(AnimationDuration.Normal);
+         });
+     })
+     .Items(items =>
+     {
+         items.Add()
+             .Text(Positive.Model.Languages.Common.List)
+             .Selected(true)
+             .ContentHtmlAttributes(new { style = "min-height: 590px" })
+             .Content(
+
+
+                     Html.Kendo().TreeList<SampleArch.Model.ViewModels.CategoryViewModel>()
+                     .Name("treeList")
+                     .Toolbar(toolbar =>
+                        {
+                            toolbar.Custom().Name("addRoot").Text(@Positive.Model.Languages.Stock.AddRoot);
+                        })
+                     .Columns(columns =>
+                     {
+                         columns.Add().Field<int>(p => p.Id).Width(100).Hidden(true);
+                         columns.Add().Field<string>(p => p.Key).Width(150);
+                         columns.Add().Field<string>(p => p.CompleteKey).Width(150);
+                         columns.Add().Field<string>(p => p.Name).Width(150);
+                         columns.Add().Field<string>(p => p.Description).Width(300);
+                         columns.Add().Width(200).Command(c =>
+                                                         {
+                                                             c.Custom().ClassName("addChild").Click("AddChildItem").Text(" ").Name("addChild");
+                                                             c.Custom().ClassName("editLine").Click("ViewItem").Text(" ").Name("editLine");
+                                                             c.Custom().ClassName("deleteLine").Click("DeleteItem").Text(" ").Name("deleteLine");
+                                                             c.Custom().ClassName("addStock").Click("AddStock").Text(" ").Name("addStock");
+                                                         });
+                     })
+                     .Filterable(false)
+                     .HtmlAttributes(new { style = "max-width : 100% !important" })
+                     .HtmlAttributes(new { style = "height:550px;" })
+                     .Events(events =>
+                         {
+                             events.DataBinding("onDataBinding");
+                         })
+                     .DataSource(dataSource => dataSource
+                         .Read(read => read.Action("All", "Category"))
+                         .Model(m =>
+                         {
+                             m.Id<int>(f => f.Id);
+                             m.ParentId<int?>(f => f.ParentId);
+                             m.Field<string>(f => f.CompleteKey);
+                             m.Field<string>(f => f.Key);
+                             m.Field<string>(f => f.Name);
+                             m.Field<string>(f => f.Description);
+                         })
+                   
+                      ).ToHtmlString()
+             );
+
+     })
+)
+
+
+
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+
+            editFormParam.saveUrl = window.location.origin + '/Category/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/Category/Delete/';
+            editFormParam.addRootUrl = window.location.origin + '/Category/AddRoot/';
+            editFormParam.addChildUrl = window.location.origin + '/Category/AddChild/';
+            editFormParam.addStockUrl = window.location.origin + '/Stock/AddToCategory/';
+            editFormParam.titleField = 'CompleteKey'
+        }
+
+        $(document).ready(function () {
+            pageIsReady();
+        });
+
+
+        function AfterGridRendered() {
+
+            $("button[data-command='addroot']").kendoButton({
+                spriteCssClass: "k-icon k-add"
+            });
+        }
+
+    </script>
+}
+
+
+
+

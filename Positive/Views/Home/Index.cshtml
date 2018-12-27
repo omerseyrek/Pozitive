@@ -1,0 +1,167 @@
+﻿@{
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    ViewBag.Title = "Home Page";
+}
+
+
+
+<div>
+    @(Html.Kendo().Splitter()
+      .Name("vertical")
+      .HtmlAttributes(new {  cssClass = "fillParent" })
+      .Orientation(SplitterOrientation.Vertical)
+      .Panes(verticalPanes =>
+      {
+          verticalPanes.Add()
+              .Size("60px")
+              .HtmlAttributes(new { id = "top-pane" })
+              .Collapsible(true)
+              .CollapsedSize("20px")
+              .Content(@<div class="pane-content">
+                <h3>here will be the header menu </h3>
+            </div>);
+        
+          verticalPanes.Add()
+              .HtmlAttributes(new { id = "middle-pane", style = "min-height:500px;" })
+              .Scrollable(false)
+              .Collapsible(false)
+              .MinSize("500px")
+              .Content(
+                Html.Kendo().Splitter()
+                    .Name("horizontal")
+                    .HtmlAttributes(new { style = "height:100%;"  })
+                    .Panes(horizontalPanes =>
+                    {
+                        horizontalPanes.Add()
+                            .HtmlAttributes(new { id = "left-pane", style = " height : 95%; " })
+                            .Size("20%")
+                            .Collapsible(true)
+                            .Content(
+                            
+                            
+                            
+                            Html.Kendo().TreeView()
+                                        .Name("treeview-left")
+                                        .DragAndDrop(true)
+                                        .Events(events => events
+                                            .Select("onSelect")
+                                        )
+                                        .Items(treeview =>
+                                        {
+                                            treeview.Add().Text("Furniture")
+                                                .Expanded(true)
+                                                .Items(item =>
+                                                {
+                                                    item.Add().Text("Tables & Chairs").Id("123");
+                                                    item.Add().Text("Sofas").Id("123");
+                                                    item.Add().Text("Occasional Furniture").Id("123");
+                                                });
+
+                                            treeview.Add().Text("Decor")
+                                                .Expanded(true)
+                                                .Items(furniture =>
+                                                {
+                                                    furniture.Add().Text("Bed Linen").Id("123");
+                                                    furniture.Add().Text("Curtains & Blinds").Id("123");
+                                                    furniture.Add().Text("Carpets").Id("123");
+                                                });
+                                        }).ToHtmlString()
+                                        
+                        );
+
+                        horizontalPanes.Add()
+                            .HtmlAttributes(new { id = "center-pane", style = " min-height : 95%; min-weight : 100px;" })
+                            .Content(
+                             Html.Kendo().TreeView()
+                                    .Name("treeviewmenu")
+                                    .HtmlAttributes(new { @class = "demo-section" })
+                                    .DataTextField("Description")
+                                    .Events(events => events
+                                            .Select("onSelect")
+                                        )
+                                    .DataSource(dataSource => dataSource
+                                         .Model(m => m
+                                                .Id("Id")
+                                                .HasChildren("hasChildren")
+
+                                                .Children("SubMenus"))
+                                        .Read(read => read
+                                            .Action("MenuData", "Home")
+                                        )
+                                    ).ToHtmlString()
+                            );
+
+                      
+                    }).ToHtmlString()
+              );
+
+
+          verticalPanes.Add()
+              .Size("50px")
+              .HtmlAttributes(new { id = "bottom-pane" })
+              .Resizable(false)
+              .Collapsible(false)
+              .Content(@<div class="pane-content">
+                <h3>Outer splitter / bottom pane</h3>
+            </div>);
+      })
+    )
+</div>
+
+
+<script>
+    var treeview;
+
+    $(document).ready(function () {
+        treeview = $("#treeview").data("kendoTreeView");
+    });
+
+    function onSelect(e) {
+
+        var dataItem = this.dataItem(e.node);
+
+    }
+</script>
+
+<style>
+    #example {
+        text-align: center;
+    }
+
+    .demo-section {
+        display: inline-block;
+        vertical-align: top;        
+        text-align: left;
+        margin: 0 2em;
+    }
+</style>
+
+<style>
+    #vertical {
+        height: 380px;
+    }
+
+    #middle-pane {
+        background-color: rgba(60, 70, 80, 0.10);
+    }
+
+    #bottom-pane {
+        background-color: rgba(60, 70, 80, 0.15);
+    }
+
+    #left-pane {
+        background-color: rgba(60, 70, 80, 0.05);
+    }
+
+    #center-pane {
+        background-color: rgba(60, 70, 80, 0.05);
+    }
+
+    #right-pane {
+        background-color: rgba(60, 70, 80, 0.05);
+    }
+
+    .pane-content {
+        padding: 0 10px;
+    }
+</style>

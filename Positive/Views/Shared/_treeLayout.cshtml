@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title - My Telerik MVC Application</title>
+    <link href="~/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.BlueOpal.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.metro.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+</head>
+<body>
+    <header></header>
+
+    <span id="configurableNotification" style="display:none;  min-height : 100px; min-width : 250px;  "></span>
+    <span id="successNotification" style="display:none;  min-height : 100px; min-width : 250px;  "></span>
+
+    <div id="body">
+        @RenderBody()
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var editFormParam = function ()
+    {
+        tabStripElement = 'Id';
+        saveUrl  = null;
+        addRootUrl = null,
+        addChildUrl = null,
+        deleteUrl  = null;
+    }
+
+    var tabStripElement = undefined;
+    var configurable = undefined;
+    var configurableSuccess = undefined;
+
+
+    function pageIsReady() {
+
+        setEditFormParam(editFormParam);
+
+        if(typeof onReadyBeforeInterceptor  !== "undefined")
+        {
+            onReadyBeforeInterceptor();
+        }
+
+        StripeOperations();
+
+        NotificationConfiguration();
+
+        if(typeof onReadyAfterInterceptor !== "undefined")
+        {
+            onReadyAfterInterceptor(editFormParam);
+        }
+
+    }
+
+    function StripeOperations()
+    {
+        tabStripElement = $("#SubTabStrip");
+
+        $("button[data-command='addroot']").click(function (e) {
+            AddRootItem(e);
+        });
+    }
+
+    function NotificationConfiguration()
+    {
+        configurable = $("#configurableNotification").kendoNotification().data("kendoNotification");
+
+        configurableSuccess = $("#successNotification").kendoNotification().data("kendoNotification");
+
+        var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+        var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
+        ApplyConfiguration(w, h);
+
+        ApplySuccessConfiguration(w, h);
+    }
+
+    function ApplyConfiguration(w, h) {
+        configurable.hide();
+        configurable.setOptions({
+            position: {
+                top: ((h*4) / 10),
+                left: ((w * 4) / 10),
+                bottom: 0,
+                right: 0
+            },
+            width: 450,
+            stacking: 'down'
+        });
+    }
+
+    function ApplySuccessConfiguration(w, h) {
+        configurableSuccess.hide();
+        configurableSuccess.setOptions({
+            position: {
+                top: ((h * 4) / 10),
+                left: ((w * 4) / 10),
+                bottom: 0,
+                right: 0
+            },
+            button: true,
+            width: 450,
+            stacking: 'down'
+        });
+    }
+
+    function onShow(e) {
+        if (!$("." + e.sender._guid)[1]) {
+            var element = e.element.parent(),
+                eWidth = element.width(),
+                eHeight = element.height(),
+                wWidth = $(window).width(),
+                wHeight = $(window).height(),
+                newTop, newLeft;
+
+            newLeft = Math.floor(wWidth / 2 - eWidth / 2);
+            newTop = Math.floor(wHeight / 2 - eHeight / 2);
+
+            e.element.parent().css({ top: newTop, left: newLeft });
+        }
+    }
+
+    function onDataBinding(args)
+    {
+        setTimeout(AfterGridRendered, 500);
+    }
+
+    function ViewItem(e)
+    {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        var title = eval('dataItem.' + editFormParam.titleField)
+
+        AppendStripeFrame(title, editFormParam.saveUrl + dataItem.Id);
+    }
+
+    function AddItem(e)
+    {
+        e.preventDefault();
+
+        AppendStripeFrame( @Html.Raw(Json.Encode(@Positive.Model.Languages.Common.NewItem)), editFormParam.saveUrl + '0');
+    }
+
+    function AddStock(e)
+    {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        console.log(editFormParam.addStockUrl +  dataItem.Id);
+
+        AppendStripeFrame( @Html.Raw(Json.Encode(@Positive.Model.Languages.Common.NewItem)), editFormParam.addStockUrl +  dataItem.Id);
+    }
+
+    function AddRootItem(e)
+    {
+        e.preventDefault();
+
+        AppendStripeFrame( @Html.Raw(Json.Encode(@Positive.Model.Languages.Common.NewItem)), editFormParam.addRootUrl + '0');
+    }
+
+    function AddChildItem(e)
+    {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        AppendStripeFrame( @Html.Raw(Json.Encode(@Positive.Model.Languages.Common.NewItem)), editFormParam.addChildUrl + dataItem.Id);
+    }
+
+    function DeleteItem(e)
+    {
+        debugger;
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        $.ajax({
+            type: "POST",
+            url: editFormParam.deleteUrl + dataItem.Id,
+            datatype: "html",
+            success: function (data) {
+                debugger;
+                notification = $("#notification").data("kendoNotification");
+
+                if (data.Success == true) {
+
+                    var messages = eval(data.results);
+
+                    configurableSuccess.show(@Html.Raw(Json.Encode(@Positive.Model.Languages.Common.SaveSuccess)), "success");
+
+                    ReoladGrid();
+
+                    if ((messages == undefined || messages.length == 0) == false) {
+                        messages.forEach(function (entry) {
+                            configurable.show(entry.Message, "success");
+                        });
+                    }
+                }
+                else {
+
+                    var messages = eval(data.Messages);
+
+                    messages.forEach(function (entry) {
+                        configurable.show(entry.Message, "error");
+                    });
+                }
+            },
+            failure: function (data) {
+
+                configurableSuccess.show(@Html.Raw(Json.Encode(@Positive.Model.Languages.Common.SaveFailure)), "error");
+            }
+        });
+    }
+
+
+    function ReoladGrid() {
+        console.log('reloading....')
+        $("#treeList").data("kendoTreeList").dataSource.read();
+    }
+
+
+    function RemoveStripe(striprTitle) {
+        var stripe = $("#SubTabStrip").data("kendoTabStrip");
+
+        var tabExits = stripe.tabGroup.find(':contains("' + striprTitle + '")');
+        if (tabExits.length > 0) {
+
+            stripe.remove("li:contains(" + striprTitle + ")");
+        }
+
+        var listTitle = '@(Positive.Model.Languages.Common.List)';
+        stripe.select("li:contains(" + listTitle + ")");
+    }
+
+
+    function RemoveStripeAndReload(striprTitle, notes)
+    {
+
+        RemoveStripe(striprTitle);
+        ReoladGrid();
+
+        if (typeof notes === 'undefined') {
+
+        }
+        else
+        {
+            var messages = eval(notes.results);
+
+            configurableSuccess.show(@Html.Raw(Json.Encode(@Positive.Model.Languages.Common.SaveSuccess)), "success");
+
+            if ((messages == undefined || messages.length == 0) == false) {
+                messages.forEach(function (entry) {
+
+                    configurableSuccess.show(entry.ErrorMessage, "warning");
+
+                });
+            }
+        }
+    }
+
+    function onSelect(e) {
+
+        var dataItem = this.dataItem(e.node);
+
+        AppendStripeFrame(dataItem.Description, dataItem.Url);
+    }
+
+    var expandContentDivs = function (divs) {
+        divs.height(tabStripElement.innerHeight() - tabStripElement.children(".k-tabstrip-items").outerHeight() - 16);
+    }
+
+    function AppendStripeFrame(striprTitle, stripeUrl) {
+
+        var tabstrip = $("#SubTabStrip");
+
+        var stripe = tabstrip.data("kendoTabStrip");
+
+        var tabExits = stripe.tabGroup.find(':contains("' + striprTitle + '")');
+        if (tabExits.length == 0) {
+            var stripeText = "<span class= 'tabLabelStyle'>" + striprTitle + "</span> <input type='image' class = 'closeIconStyle' value=''  onclick=\"RemoveStripe('" + striprTitle + "')\"></input>";
+            stripe.append(
+           {
+               id : 'Tab'+ striprTitle,
+               encoded : false,
+               text: stripeText,
+               htmlAttributes: { style: "min-height:610px;" },
+               cssClass: "frameLayout",
+               content: '<div style = " width : 100%; height : 100%; min-height : 620px;  " ><iframe style = "border : none; min-height : 580px;  width : 100%; " src="' + stripeUrl + '"></iframe>'              // Link URL if navigation is needed, optional.
+           });
+            expandContentDivs(tabstrip.children(".k-content").last());
+        }
+
+        stripe.select("li:contains(" + striprTitle + ")");
+    }
+
+
+</script>
+
+<style type="text/css">
+    .closeIconStyle {
+        width: 17px;
+        height: 17px;
+        border: 0 none !important;
+        background-image: url('../../Images/close_button.png');
+        position: relative;
+        vertical-align: top;
+    }
+
+
+    .tabLabelStyle {
+        position: relative;
+        vertical-align: top;
+    }
+</style>
+
+<style type="text/css">
+    .k-grid tbody .k-button {
+        min-width: 0px;
+    }
+
+    .k-grid-EditForm {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -352px -297px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .k-grid-EditForm-hover {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -352px -297px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .k-grid-DeleteForm {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -428px -407px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .k-grid-AddForm {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -379px -144px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+</style>
+
+
+<style type="text/css">
+    .k-grid tbody .k-button {
+        min-width: 0px !important;
+    }
+
+    .addStock {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -379px -144px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .addChild {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -379px -144px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .editLine {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -352px -297px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .deleteLine {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -428px -407px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .addChild-hover {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -379px -144px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .editLine-hover {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -352px -297px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+    .deleteLine-hover {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -428px -407px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+
+     .addStock-hover {
+        background-image: url('../../Images/btn_images.jpg');
+        background-position: -379px -144px;
+        width: 20px;
+        height: 20px;
+        border-style: none;
+        border-width: 0;
+    }
+</style>
+
+
+
+@RenderSection("pageScripts", false)
+
+@RenderSection("pageStyles", false)

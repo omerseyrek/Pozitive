@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewBag.Title</title>
+    <link href="~/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.BlueOpal.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.metro.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Content/js/index.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.web.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.aspnetmvc.min.js")"></script>
+    @Scripts.Render();
+</head>
+<body>
+    <div class="wrapper">
+        @RenderBody()
+        @*<div class="container">
+                <h1>Positive | EKT</h1>
+                <form class="form">
+                    <input type="text" placeholder="Username">
+                    <input type="password" placeholder="Password">
+                    <button type="submit" id="login-button">Login</button>
+                </form>
+            </div>*@
+        <ul class="bg-bubbles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+</body>
+</html>

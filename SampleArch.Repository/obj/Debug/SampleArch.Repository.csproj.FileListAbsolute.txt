@@ -1,0 +1,13 @@
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\SampleArch.Repository.dll.config
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\SampleArch.Repository.dll
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\SampleArch.Repository.pdb
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\EntityFramework.dll
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\EntityFramework.SqlServer.dll
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\SampleArch.Model.dll
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\SampleArch.Model.pdb
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\EntityFramework.xml
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\EntityFramework.SqlServer.xml
+D:\Projects\Positive\SampleArch.Repository\bin\Debug\en-GB\SampleArch.Model.resources.dll
+D:\Projects\Positive\SampleArch.Repository\obj\Debug\SampleArch.Repository.csprojResolveAssemblyReference.cache
+D:\Projects\Positive\SampleArch.Repository\obj\Debug\SampleArch.Repository.dll
+D:\Projects\Positive\SampleArch.Repository\obj\Debug\SampleArch.Repository.pdb

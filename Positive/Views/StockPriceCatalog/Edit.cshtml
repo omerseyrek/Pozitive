@@ -1,0 +1,208 @@
+﻿@model SampleArch.Model.ViewModels.StockPriceCatalogViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_addWithDetailLayout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+ 
+        <div class="form-group">
+            @Html.LabelFor(model => model.SupplierId, @Positive.Model.Languages.Stock.SupplierName, htmlAttributes: new { @class = "control-label" })
+            <div class="col-md-10">
+                @(Html.Kendo().DropDownListFor(m => m.SupplierId).OptionLabel(@Positive.Model.Languages.Common.SelectFirm).DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ListForCombo", "Company");
+                        });
+                    })
+                    .DataTextField("FirmName")
+                    .DataValueField("Id"))
+
+
+                @Html.ValidationMessageFor(model => model.SupplierId, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.Id, new { id = "Id" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CatalogCode, @Positive.Model.Languages.Common.Code, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.CatalogCode, new { htmlAttributes = new { @class = "form-control    k-textbox" } })
+                @Html.ValidationMessageFor(model => model.CatalogCode, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Definition, @Positive.Model.Languages.Project.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Definition, new { htmlAttributes = new { @class = "form-control    k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Definition, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+          @(Html.Kendo().Grid<SampleArch.Model.ViewModels.StockPriceViewModel>(Model.StockPriceViewModels)
+                    .Name("subGrid")
+                    .ToolBar(toolbar =>
+                      {
+                          toolbar.Create().Text(Positive.Model.Languages.Common.Add);
+                      })
+                    .Events(
+                        e => e.Remove("lineRemoved")
+                    )
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.CatalogId).Visible(false);
+                        columns.Bound(p => p.StockId).Visible(false);
+                        columns.Bound(p => p.SmartCode).EditorTemplateName("SmartCodeEditorTheme");
+                        columns.Bound(p => p.SupplierProductCode);
+                        columns.Bound(p => p.StockName);
+                        columns.Bound(p => p.Price);
+                        columns.Command(command => { command.Edit(); command.Destroy(); });
+                    })
+                    .Scrollable()
+                    .HtmlAttributes(new { style = "height:330px;" })
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .PageSize(100)
+                        .Model(model => 
+                         {   
+                            model.Id(p => p.Id);
+                            model.Field(p => p.StockId);
+                            model.Field(p => p.SupplierProductCode);
+                            model.Field(p => p.SmartCode);
+                            model.Field(p => p.StockName).Editable(false);
+                            model.Field(p => p.Price);
+                         })
+                        .ServerOperation(false)
+                        .Batch(true)
+                        .Events(e => e.Change("doOnCellEdit"))
+                        .Read(read => read.Action("List", "StockPrice").Data("filterInfo"))
+                        .Create(create => create.Action("GridAdd", "StockPrice"))
+                        .Update(p => p.Action("GridEdit", "StockPrice"))
+                        .Destroy(p => p.Action("GridDelete", "StockPrice"))
+                     )
+         )
+        </div>
+    </div>
+}
+
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+    
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+            editFormParam.saveUrl = window.location.origin + '/StockPriceCatalog/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/StockPriceCatalog/Delete/';
+            editFormParam.titleField = 'CatalogCode'
+            editFormParam.destroyedIDs = [];
+            editFormParam.gridObject
+        }
+
+        $(document).ready(function () {
+            pageIsReady();
+        });
+
+        function getGridObjectJson(gridData) //atıl bir iş olabilir...
+        {
+            var result = JSON.stringify({ StockPriceViewModel: gridData });
+            return result;
+        }
+
+        function filterInfo() {
+            return {
+                SupplierId:$("#SupplierId").data("kendoDropDownList").dataItem().Value,
+                CatalogId: $("#Id")[0].value
+            }
+        }
+
+        function index(dataItem) {
+            var data = $("#StockPriceViewModels").data("kendoGrid").dataSource.data();
+            return data.indexOf(dataItem);
+        }
+
+        function lineRemoved(e) {
+           
+            editFormParam.destroyedIDs.push(e.model.Id);
+
+        }
+
+        function doOnCellEdit(e) {
+
+            if (e.action === "itemchange" && e.field === "SmartCodeEditor") {
+
+                var model = e.items[0];
+
+                var selectedCode = function () {
+                    categoryID = model.SmartCodeEditor.SmartCode,
+                    stockName = model.SmartCodeEditor.StockName,
+                    unitId = model.SmartCodeEditor.StockUnitId
+                }
+
+
+                e.sender._data[0].StockId = model.SmartCodeEditor.Id;
+                e.sender._data[0].StockName = model.SmartCodeEditor.StockName;
+                e.sender._data[0].SupplierProductCode = model.SmartCodeEditor.SupplierProductCode;
+                e.sender._data[0].SmartCode = model.SmartCodeEditor.SmartCode;
+
+
+                $("#subGrid").find("tr[data-uid='" + model.uid + "'] td:eq(2)")[0].innerText = model.SmartCodeEditor.StockName;
+
+
+                var dtSupplierCode = $("#subGrid").find("tr[data-uid='" + model.uid + "'] td:eq(1)")[0];
+                var supplierCode = $(dtSupplierCode).find("input");
+                supplierCode[0].value = model.SmartCodeEditor.SupplierProductCode;
+
+            }
+            else if (e.action === "itemchange" && e.field === "Price") {
+     
+                var model = e.items[0];
+                e.sender._data[0].StockId = e.sender._data[0].StockId;
+                e.sender._data[0].StockName = e.sender._data[0].StockName
+                e.sender._data[0].SupplierProductCode = e.sender._data[0].SupplierProductCode
+                e.sender._data[0].SmartCode = e.sender._data[0].SmartCode
+                //$("#subGrid").find("tr[data-uid='" + model.uid + "'] td:eq(1)")[0].innerText = e.sender._data[0].SmartCode;
+               // model.SmartCodeEditor.SmartCode = e.sender._data[0].SmartCode;
+            }
+        }
+        
+
+        function SmartCodeEditorFilter()
+        {
+            var args = new Object();
+            args.SupplierId =  $("#SupplierId").data("kendoDropDownList").dataItem().Id
+            return  args;
+        }
+
+
+        function serialize(data) {
+            for (var property in data) {
+                if ($.isArray(data[property])) {
+                    serializeArray(property, data[property], data);
+                }
+            }
+        }
+        function serializeArray(prefix, array, result) {
+            for (var i = 0; i < array.length; i++) {
+                for (var property in array[i]) {
+                    result[prefix + "[" + i + "]." + property] = array[i][property];
+                }
+            }
+        }
+
+    </script>
+}

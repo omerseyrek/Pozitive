@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "~/Views/Shared/_listLayout.cshtml";
+    ViewBag.Title = "Home Page";
+}
+
+@(
+
+ Html.Kendo().TabStrip()
+     .Name("SubTabStrip")
+         .HtmlAttributes(new { style = "height:%100 !important width:100% !important" })
+     .Animation(animation =>
+     {
+         animation.Enable(true);
+
+         animation.Open(config =>
+         {
+             config.Fade(FadeDirection.In);
+             config.Duration(AnimationDuration.Normal);
+         });
+     })
+     .Items(items =>
+     {
+         items.Add()
+             .Text(Positive.Model.Languages.Common.List)
+             .Selected(true)
+
+             .ContentHtmlAttributes(new { style = "min-height: 100%" })
+             .Content(
+                     Html.Kendo().Grid<SampleArch.Model.ViewModels.UsersInRoleViewModel>()
+                     .Name("gridList")
+                      .ToolBar(toolbar =>
+                      {
+                          if ((ViewBag.PageAthority as SampleArch.Model.ViewModels.ModulesInRolesViewModel).Add == true)
+                          {
+                              toolbar.Custom().Name("addItem").Text(Positive.Model.Languages.Common.Add);
+                          }
+                      })
+                     .Columns(columns =>
+                     {
+                         columns.Bound(p => p.Id).Filterable(false).Width(100).Hidden(true);
+                         columns.Bound(p => p.Account).Width(150).Filterable(true);
+                         columns.Bound(p => p.RoleCode).Width(150).Filterable(true);
+                         columns.Bound(p => p.RoleName).Width(150);
+
+                         columns.Command(p =>
+                         {
+                             if ((ViewBag.PageAthority as SampleArch.Model.ViewModels.ModulesInRolesViewModel).Delete == true)
+                             {
+                                 p.Custom("DeleteForm").Click("DeleteItem").Text(" ");
+                             }
+                         });
+                     })
+
+                     .HtmlAttributes(new { style = "max-width : 100% !important" })
+                     .Pageable()
+                     .Sortable()
+                     .Scrollable()
+                     .Filterable()
+                     .HtmlAttributes(new { style = "height:550px;" })
+                     .DataSource(dataSource => dataSource
+                         .Ajax()
+                         .PageSize(20)
+                         .Read(read => read.Action("List", "UsersInRole"))
+                      ).ToHtmlString()
+             );
+
+     })
+)
+
+@section pageStyles{
+
+}
+
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+            editFormParam.saveUrl = window.location.origin +  '/UsersInRole/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/UsersInRole/Delete/';
+            editFormParam.titleField = 'FirmName'
+        }
+
+        $(document).ready(function () {
+
+            pageIsReady();
+        });
+
+
+    </script>
+}
+
+
+
+
+

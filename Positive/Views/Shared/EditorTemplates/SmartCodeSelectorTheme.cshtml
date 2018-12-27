@@ -1,0 +1,17 @@
+﻿@(Html.Kendo().AutoComplete()
+            .Name("SmartCodeSelector")
+            .DataTextField("SmartCode")
+            .Filter("contains")
+            .MinLength(3)
+            .HtmlAttributes(new { style = "width:250px" })
+            .DataSource(source =>
+            {
+                source.Read(read =>
+                {
+                    read.Action("ListForSearchSmartCode", "Stock");
+                    read.Data("SmartCodeSelectorFilter");
+
+                })
+                .ServerFiltering(false);
+            })
+)

@@ -1,0 +1,105 @@
+﻿@model SampleArch.Model.ViewModels.UserViewModel
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_editLayout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Account, @Positive.Model.Languages.Admin.Account, htmlAttributes: new { @class = "control-label col-md-2 " })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Account, new { htmlAttributes = new { @class = "form-control k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Account, @Positive.Model.Languages.Admin.Account, new { @class = "text-danger  " })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, @Positive.Model.Languages.Admin.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control  k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Name, @Positive.Model.Languages.Admin.Name, new { @class = "text-danger " })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LastName, @Positive.Model.Languages.Admin.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control  k-textbox" } })
+                @Html.ValidationMessageFor(model => model.LastName, @Positive.Model.Languages.Admin.LastName, new { @class = "text-danger " })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.UserTitleId, @Positive.Model.Languages.Admin.UserTitleId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DropDownListFor(m => m.UserTitleId).OptionLabel(@Positive.Model.Languages.Common.PleaseSelect).DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ListForCombo", "UserTitle");
+                        });
+                    })
+                                    .DataTextField("Description")
+                                    .DataValueField("Id"))
+
+                @Html.ValidationMessageFor(model => model.UserTitleId, @Positive.Model.Languages.Admin.UserTitleId, new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, @Positive.Model.Languages.Admin.Mail, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control  k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Email, @Positive.Model.Languages.Admin.Mail, new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Password, @Positive.Model.Languages.Admin.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control  k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Password, @Positive.Model.Languages.Admin.Password, new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IsActive, @Positive.Model.Languages.Admin.IsActive, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.IsActive)
+                    @Html.ValidationMessageFor(model => model.IsActive, @Positive.Model.Languages.Admin.IsActive, new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+            editFormParam.saveUrl = window.location.origin + '/User/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/User/Delete/';
+            editFormParam.titleField = 'Account'
+        }
+
+        $(document).ready(function () {
+            pageIsReady();
+        });
+
+    </script>
+}

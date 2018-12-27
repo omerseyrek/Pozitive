@@ -1,0 +1,99 @@
+﻿@model SampleArch.Model.ViewModels.Admin.LogonViewModel
+@{
+    ViewBag.Title = "EKT | Positive | Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal" style="width : 100%; height :100%; margin-left : 38%; margin-top : 10%">
+        <div id="banner" style="padding: 15px 15px 40px 15px">
+            <div style="position:relative">
+                <img src="~/Images/positive_logo_smaller1.png" />
+                <img src="~/Images/EKT_logo.jpg" />
+            </div>
+        </div>
+        <div id="formDivision" class="loginForm" style="margin-left:40px;">
+            @using (Html.BeginForm())
+            {                
+                <table>
+                    <tr>
+                        <td width="110px" align="left" valign="top">
+                            @Html.LabelFor(model => model.UserName, @Positive.Model.Languages.Admin.Account, htmlAttributes: new { @class = "control-label" })
+
+                        </td>
+                        <td width="500px" height="40px" align="left" style="font-size: 10pt;">
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = " k-textbox" } })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-warning" })
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="110px" align="left">
+                            @Html.LabelFor(model => model.Password, @Positive.Model.Languages.Admin.Password, new { htmlAttributes = new { @class = "control-label" } })
+                        </td>
+                        <td width="500px" height="40px" align="left" style="font-size: 10pt;">
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = " k-textbox" } })
+                            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-warning" })
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="110px" align="left">
+                            @Html.LabelFor(model => model.LanguageCode, @Positive.Model.Languages.Admin.LanguageCode, htmlAttributes: new { @class = "control-label" })
+                        </td>
+                        <td width="550px" height="35px" align="left" style="font-size: 10pt;">
+                            @(Html.Kendo().DropDownListFor(m => m.LanguageCode).OptionLabel("Dil Seçiniz...").DataSource(source =>
+                                {
+                                    source.Read(read =>
+                                    {
+                                        read.Action("List", "UILanguage");
+                                    });
+                                })
+                                 .DataTextField("Description")
+                                 .DataValueField("LangCode"))
+
+                            
+
+                            @Html.ValidationMessageFor(model => model.LanguageCode, "", new { @class = "other-input-validation-error" })
+
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <div class="form-group">
+                    <div class="formElementDiv" style=" float: left; padding-right:15px; margin-left:15px;">
+                        @Html.LabelFor(model => model.RememberMe, @Positive.Model.Languages.Admin.RememberMe, htmlAttributes: new { @class = "control-label" })
+                    </div>
+                    <div class="rememberDiv" style="margin-left:30px;">
+                        <div class=" checkbox, formelementdiv" style="margin-left:20px;">
+                            @Html.Kendo().CheckBoxFor(model => model.RememberMe)
+                            @Html.ValidationMessageFor(model => model.RememberMe, "", new { @class = "text-warning" })
+                            <div class="k-button-icontext" style="margin-left:200px; margin-top:-28px;">
+                                @(Html.Kendo().Button()
+                                    .Name("btnLogin")
+                                    .HtmlAttributes(new { type = "submit"})
+                                    .ImageUrl(Url.Content("~/Images/login_s.png"))
+                                    .HtmlAttributes(new { @Style = "align:center; font-size:12px; width:40px; height:34px; align:middle" }))
+                            </div>
+                        </div>
+
+                    </div>                    
+                    <div class="verInfo" style="margin-top: 50px; text-shadow:inherit; color:GrayText; font-size:8pt;">
+                        <hr style="width: 350px"/>
+                        @Html.Label("", "Version : 1.4422")
+                    </div>                   
+
+                    <div style="clear : both"></div>
+                </div>
+                <div class="clearDiv">
+                </div>
+                <br />
+                <div>
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-warning" })
+                </div>
+
+            }
+        </div>
+    </div>
+}

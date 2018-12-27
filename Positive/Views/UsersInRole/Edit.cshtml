@@ -1,0 +1,72 @@
+﻿@model SampleArch.Model.ViewModels.UsersInRoleViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_editLayout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.UserID, @Positive.Model.Languages.Admin.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DropDownListFor(m => m.UserID).OptionLabel(@Positive.Model.Languages.Common.PleaseSelect).DataSource(source =>
+                    {
+                        source.Read(read =>
+                            {
+                                read.Action("ListForCombo", "User");
+                            });
+                    })
+           .DataTextField("Account")
+           .DataValueField("Id"))
+
+
+
+                @Html.ValidationMessageFor(model => model.UserID, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RoleId, @Positive.Model.Languages.Admin.Role, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DropDownListFor(m => m.RoleId).OptionLabel(@Positive.Model.Languages.Common.PleaseSelect).DataSource(source =>
+                   {
+                       source.Read(read =>
+                       {
+                           read.Action("ListForCombo", "Role");
+                       });
+                   })
+                   .DataTextField("Description")
+                   .DataValueField("Id"))
+
+                @Html.ValidationMessageFor(model => model.RoleId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+    </div>
+}
+
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+            editFormParam.saveUrl = window.location.origin + '/UsersInrole/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/UsersInrole/Delete/';
+            editFormParam.titleField = 'Id'
+        }
+
+        $(document).ready(function () {
+            pageIsReady();
+        });
+
+    </script>
+}

@@ -1,0 +1,18 @@
+﻿@(Html.Kendo().AutoComplete()
+            .Name("SmartCodeEditor")
+            .DataTextField("SmartCode")
+            .Filter("contains")
+            .MinLength(3)
+            .HtmlAttributes(new { style = "width:250px" })
+            .DataSource(source =>
+            {
+                source.Read(read =>
+                {
+                    read.Action("ListForSupplierCodeSearch", "Stock");
+                })
+                .ServerFiltering(false);
+            })
+            .Events(e => e.Select("supplierStockCodeChenged"))
+)
+
+

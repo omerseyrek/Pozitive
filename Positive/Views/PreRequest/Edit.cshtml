@@ -1,0 +1,194 @@
+﻿@model SampleArch.Model.ViewModels.PreRequestViewModel
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_addWithDetailLayout.cshtml";
+    
+   var EditorCulture  = (System.Globalization.CultureInfo)ViewBag.UICulture;
+
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ProjectName, @Positive.Model.Languages.Project.ProjectName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DropDownListFor(m => m.ProjectId).OptionLabel(@Positive.Model.Languages.Common.PleaseSelect).DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ListForCombo", "Project");
+                        });
+                    })
+                                    .DataTextField("ProjectName")
+                                    .DataValueField("Id"))
+
+                @Html.ValidationMessageFor(model => model.ProjectId, @Positive.Model.Languages.Project.ProjectName, new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.Id, new { id = "Id" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, @Positive.Model.Languages.Common.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control    k-textbox" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.RequestDate, @Positive.Model.Languages.Request.RequestDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DatePickerFor(model => model.RequestDate).Value(DateTime.Today).Culture(EditorCulture.Name))
+                @Html.ValidationMessageFor(model => model.RequestDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.DeadLineDate, @Positive.Model.Languages.Request.DeadLineDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @(Html.Kendo().DatePickerFor(model => model.DeadLineDate).Value(DateTime.Today).Culture(EditorCulture.Name))
+                @Html.ValidationMessageFor(model => model.DeadLineDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @(Html.Kendo().Grid<SampleArch.Model.ViewModels.RequestLineViewModel>(Model.RequestLines)
+                    .Name("subGrid")
+                    .ToolBar(toolbar =>
+                      {
+                          toolbar.Create().Text(Positive.Model.Languages.Common.Add);
+                      })
+                    .Events(
+                        e => e.Remove("lineRemoved")
+                    )
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.PreRequest).Visible(false);
+                        columns.Bound(p => p.SmartCode).EditorTemplateName("SmartCodeSelectorTheme");
+                        columns.Bound(p => p.SupplierProductCode).EditorTemplateName("SupplierProductCodeSelectorTheme");
+                        columns.Bound(p => p.Description);
+                        columns.Bound(p => p.Quantity);
+                        columns.Command(command => { command.Edit(); command.Destroy(); });
+                    })
+                    .Scrollable()
+                    .HtmlAttributes(new { style = "height:330px;" })
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .PageSize(100)
+                        .Model(model =>
+                         {
+                             model.Id(p => p.Id);
+                             model.Field(p => p.SmartCode);
+                             model.Field(p => p.SupplierProductCode);
+                             model.Field(p => p.Description);
+                             model.Field(p => p.Quantity);
+                         })
+                        .ServerOperation(false)
+                        .Batch(true)
+                        //.Filter(filters =>
+                        //{
+                        //    filters.Add(line => line.PreRequestId).Equals(Model.Id);
+                        //})
+                        .Events(e => e.Change("doOnCellEdit"))
+                        .Read(read => read.Action("List", "RequestLine").Data("filterInfo"))
+                        .Create(create => create.Action("GridAdd", "RequestLine"))
+                        .Update(p => p.Action("GridEdit", "RequestLine"))
+                        .Destroy(p => p.Action("GridDelete", "RequestLine"))
+                     )
+            )
+        </div>
+
+    </div>
+}
+
+@section pageScripts{
+    <script type="text/javascript">
+
+        function setEditFormParam(editFormParam) {
+            if (!window.location.origin) {
+                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+
+            editFormParam.saveUrl = window.location.origin + '/PreRequest/Edit/';
+            editFormParam.deleteUrl = window.location.origin + '/PreRequest/Delete/';
+            editFormParam.titleField = 'Id'
+        }
+
+        $(document).ready(function () {
+ 
+            pageIsReady();
+
+            kendo.culture("@EditorCulture.Name");
+        })
+
+        function doOnCellEdit(e) {
+          
+            if (e.action === "itemchange" && e.field === "SmartCodeSelector") {
+                var model = e.items[0];
+
+                e.sender._data[0].SmartCode = model.SmartCodeSelector.SmartCode;
+            }
+            else if (e.action === "itemchange" && e.field === "SupplierProductCodeSelector") {
+                var model = e.items[0];
+                e.sender._data[0].SupplierProductCode = model.SupplierProductCodeSelector.SupplierProductCode;
+            }
+       
+        }
+
+
+        function filterInfo() {
+            return {
+                PreRequestId: $("#Id")[0].value
+            }
+        }
+
+        function index(dataItem) {
+            var data = $("#RequestLineViewModel").data("kendoGrid").dataSource.data();
+            return data.indexOf(dataItem);
+        }
+
+        function lineRemoved(e) {
+
+            editFormParam.destroyedIDs.push(e.model.Id);
+
+        }
+
+        function SmartCodeSelectorFilter() {
+            var args = new Object();
+            return args;
+        }
+
+
+        function SupplierProductCodeSelectorFilter() {
+            var args = new Object();
+            return args;
+        }
+
+
+        function serialize(data) {
+            for (var property in data) {
+                if ($.isArray(data[property])) {
+                    serializeArray(property, data[property], data);
+                }
+            }
+        }
+        function serializeArray(prefix, array, result) {
+            for (var i = 0; i < array.length; i++) {
+                for (var property in array[i]) {
+                    result[prefix + "[" + i + "]." + property] = array[i][property];
+                }
+            }
+        }
+
+
+    </script>
+
+}
+
+
+
+

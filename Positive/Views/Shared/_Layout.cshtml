@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title - My Telerik MVC Application</title>
+    <link href="~/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.BlueOpal.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2015.1.429/kendo.dataviz.metro.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2015.1.429/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+</head>
+<body>
+    <header></header>
+    <div id="body">
+        @RenderBody()
+    </div>
+</body>
+</html>
+
+<script>
+
+    $(document).ready(function () {
+        treeview = $("#treeview").data("kendoTreeView");
+
+        //expandContentDivs(tabStripElement.children(".k-content").last());
+    });
+
+    function onSelect(e) {
+
+        var dataItem = this.dataItem(e.node);
+
+        AppendStripeFrame(dataItem.Description, dataItem.Url);
+    }
+
+    var expandContentDivs = function (divs) {
+        divs.height(tabStripElement.innerHeight() - tabStripElement.children(".k-tabstrip-items").outerHeight() - 16);
+    }
+
+    function AppendStripeFrame(striprTitle, stripeUrl) {
+
+        var tabstrip = $("#SubTabStrip");
+
+        var stripe = tabstrip.data("kendoTabStrip");
+
+        var tabExits = stripe.tabGroup.find(':contains("' + striprTitle + '")');
+        if (tabExits.length == 0) {
+            var stripeText = "<span class= 'tabLabelStyle'>" + striprTitle + "</span> <input type='image' class = 'closeIconStyle' value=''  onclick=\"RemoveStripe('" + striprTitle + "')\"></input>";
+            stripe.append(
+           {
+               id: 'Tab' + striprTitle,
+               encoded: false,
+               text: stripeText,
+               htmlAttributes: { style: "min-height:610px;" },
+               cssClass: "frameLayout",
+               content: '<div style = " width : 100%; height : 100%; min-height : 100%;  " ><iframe style = "border : none; min-height : 100%;  width : 100%; " src="' + stripeUrl + '"></iframe>'              // Link URL if navigation is needed, optional.
+           });
+            expandContentDivs(tabstrip.children(".k-content").last());
+        }
+
+        stripe.select("li:contains(" + striprTitle + ")");
+    }
+
+
+    function RemoveStripe(striprTitle) {
+        var stripe = $("#SubTabStrip").data("kendoTabStrip");
+
+        var tabExits = stripe.tabGroup.find(':contains("' + striprTitle + '")');
+        if (tabExits.length > 0) {
+
+            stripe.remove("li:contains(" + striprTitle + ")");
+            stripe.select("li:contains(Liste)");
+        }
+    }
+
+
+
+</script>
+
+<style type="text/css">
+    .closeIconStyle {
+          width: 17px;
+        height: 17px;
+        border: 0 none !important;
+        background-image: url('../../Images/close20.png');        
+        position: relative;
+        vertical-align: top;
+    }
+
+
+    .tabLabelStyle {
+        position: relative;
+        vertical-align: top;
+    }
+</style>
+
+

@@ -1,0 +1,17 @@
+﻿@(Html.Kendo().AutoComplete()
+           .Name("SupplierProductCodeSelector")
+            .DataTextField("SupplierProductCode")
+            .Filter("contains")
+            .MinLength(3)
+            .HtmlAttributes(new { style = "width:250px" })
+            .DataSource(source =>
+            {
+                source.Read(read =>
+                {
+                    read.Action("ListForSearchSupplierCode", "Stock");
+                    read.Data("SupplierProductCodeSelectorFilter");
+
+                })
+                .ServerFiltering(false);
+            })
+)
